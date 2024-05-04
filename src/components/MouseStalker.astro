@@ -1,6 +1,3 @@
----
----
-
 <div class="mouseStalker" data-state></div>
 
 <script>
@@ -8,20 +5,24 @@ class MouseStalker {
 	private cursor: {
 		x: number, y: number
 	};
-	private ease: number;
 	private mouseStalker: {
+		ease: number, // type deafult で使用
 		node: HTMLElement,
-		x: number, y: number
+		x: number, y: number,
+		velocityX: number, velocityY: number,
+		power: number // type spring で使用。大きいとよりバネで引っ張られるようになる
 	};
 
 	constructor() {
 		this.cursor = {
 			x: 0, y: 0
 		};
-		this.ease = 0.2;
 		this.mouseStalker = {
+			ease: 0.3,
 			node: document.querySelector('.mouseStalker') as HTMLElement,
-			x: 0, y: 0
+			x: 0, y: 0,
+			velocityX: 0, velocityY: 0,
+			power: 0.8
 		};
 
 		this.update = this.update.bind(this);
@@ -32,8 +33,22 @@ class MouseStalker {
 	}
 
 	private update() {
-		this.mouseStalker.x += (this.cursor.x - this.mouseStalker.x) * this.ease;
-		this.mouseStalker.y += (this.cursor.y - this.mouseStalker.y) * this.ease;
+		const type = getComputedStyle(document.documentElement).getPropertyValue('--mouseStalker-type').trim().replace(/['"]+/g, '');
+		switch (type) {
+			case 'spring':
+				// :root --mouseStalker-type="spring" の場合
+				this.mouseStalker.velocityX += (this.cursor.x - this.mouseStalker.x) * this.mouseStalker.power;
+				this.mouseStalker.velocityY += (this.cursor.y - this.mouseStalker.y) * this.mouseStalker.power;
+				this.mouseStalker.x += this.mouseStalker.velocityX *= this.mouseStalker.power;
+				this.mouseStalker.y += this.mouseStalker.velocityY *= this.mouseStalker.power;
+				break;
+			default:
+				// :root --mouseStalker-type="default" の場合
+				this.mouseStalker.x += (this.cursor.x - this.mouseStalker.x) * this.mouseStalker.ease;
+				this.mouseStalker.y += (this.cursor.y - this.mouseStalker.y) * this.mouseStalker.ease;
+				break;
+		}
+
 		document.documentElement.style.setProperty(
 			'--mouseStalker-position-x',
 			this.mouseStalker.x - (this.mouseStalker.node.offsetWidth * 0.5) + 'px'

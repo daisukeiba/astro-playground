@@ -1,0 +1,79 @@
+---
+---
+
+<div class="mouseStalker" data-state></div>
+
+<script>
+class MouseStalker {
+	private cursor: {
+		x: number, y: number
+	};
+	private ease: number;
+	private mouseStalker: {
+		node: HTMLElement,
+		x: number, y: number
+	};
+
+	constructor() {
+		this.cursor = {
+			x: 0, y: 0
+		};
+		this.ease = 0.2;
+		this.mouseStalker = {
+			node: document.querySelector('.mouseStalker') as HTMLElement,
+			x: 0, y: 0
+		};
+
+		this.update = this.update.bind(this);
+		this.onMouseMove = this.onMouseMove.bind(this);
+
+		window.addEventListener('mousemove', this.onMouseMove);
+		this.update();
+	}
+
+	private update() {
+		this.mouseStalker.x += (this.cursor.x - this.mouseStalker.x) * this.ease;
+		this.mouseStalker.y += (this.cursor.y - this.mouseStalker.y) * this.ease;
+		document.documentElement.style.setProperty(
+			'--mouseStalker-position-x',
+			this.mouseStalker.x - (this.mouseStalker.node.offsetWidth * 0.5) + 'px'
+		);
+		document.documentElement.style.setProperty(
+			'--mouseStalker-position-y',
+			this.mouseStalker.y - (this.mouseStalker.node.offsetHeight * 0.5) + 'px'
+		);
+
+		requestAnimationFrame(this.update);
+	}
+
+	private onMouseMove(e: MouseEvent) {
+		this.cursor.x = e.clientX;
+		this.cursor.y = e.clientY;
+
+		// 初回操作でdata-state="move"を付与
+		if (this.mouseStalker.node.dataset.state !== 'move') { 
+			this.mouseStalker.node.dataset.state = 'move';
+		}
+	}
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+	new MouseStalker();
+});
+</script>
+
+<style>
+	.mouseStalker {
+		background-color: var(--mouseStalker-color);
+    border-radius: 50%;
+    height: calc(var(--mouseStalker-size) * 1px);
+		position: absolute;
+    top: var(--mouseStalker-position-y);
+    left: var(--mouseStalker-position-x);
+		transition: background-color 0.4s, opacity: 0.4s;
+    width: calc(var(--mouseStalker-size) * 1px);
+		&:not([data-state="move"]) {
+			opacity: 0;
+		}
+	}
+</style>

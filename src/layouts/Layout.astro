@@ -1,5 +1,7 @@
 ---
+import MouseStalker from '../components/MouseStalker.astro';
 import '../styles/acab-reset.css';
+
 
 interface Props {
 	title: string;
@@ -20,10 +22,15 @@ const { title } = Astro.props;
 	</head>
 	<body>
 		<slot />
+		<MouseStalker />
 	</body>
 </html>
 <style is:global>
 	:root {
+		--mouseStalker-color: #999;
+		--mouseStalker-position-x: 0;
+		--mouseStalker-position-y: 0;
+		--mouseStalker-size: 20;
 	}
 	html {
 	}

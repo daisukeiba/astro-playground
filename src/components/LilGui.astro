@@ -1,0 +1,50 @@
+<script>
+import GUI from 'lil-gui';
+
+interface MouseStalkerParam {
+	_folderLabel: string;
+	color: `#${string}`;
+	size: number;
+	type: 'default' | 'spring';
+}
+
+class GuiMouseStalker {
+	gui: GUI;
+	param: MouseStalkerParam;
+	folder: GUI;
+
+	constructor(gui: GUI, param: MouseStalkerParam) {
+		this.gui = gui;
+		this.param = param;
+		this.folder = this.gui.addFolder(this.param._folderLabel);
+		this.init();
+	}
+
+	init() {
+		this.folder.addColor(this.param, 'color').onChange((value: MouseStalkerParam['color']) => {
+			document.documentElement.style.setProperty('--mouseStalker-color', value);
+		});
+		this.folder.add(this.param, 'size', 8, 100, 1).onChange((value: MouseStalkerParam['size']) => {
+			document.documentElement.style.setProperty('--mouseStalker-size', String(value));
+		});
+		this.folder.add(this.param, 'type', ['default', 'spring']).onChange((value: MouseStalkerParam['type']) => {
+			document.documentElement.style.setProperty('--mouseStalker-type', value);
+		});
+	}
+}
+
+const init = (): void => {
+	const gui = new GUI();
+	const mouseStalkerParam: MouseStalkerParam = {
+		_folderLabel: 'Mouse Stalker',
+		color: '#999999',
+		size: 20,
+		type: 'default'
+	}
+	new GuiMouseStalker(gui, mouseStalkerParam);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+	init();
+});
+</script>
